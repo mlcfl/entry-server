@@ -1,0 +1,27 @@
+{
+	"name": "entry-server",
+	"author": "FLighter",
+	"license": "CC BY-NC-ND 4.0",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"main": "dist/index.js",
+	"scripts": {
+		"start": "node dist/index.js",
+		"dev": "tsx watch ./src/index.ts",
+		"build": "tsx esbuild.config.ts"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.1",
+		"@types/node": "^22.14.0",
+		"@types/vhost": "^3.0.9",
+		"esbuild": "^0.25.2",
+		"tsx": "^4.19.3",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"dotenv": "^16.4.7",
+		"express": "^5.1.0",
+		"vhost": "^3.0.2"
+	}
+}

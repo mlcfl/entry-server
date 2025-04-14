@@ -1,0 +1,5 @@
+{
+	"appsDir": "../apps",
+	"appEntryFile": "server.js",
+	"defaultApp": "apphub"
+}
