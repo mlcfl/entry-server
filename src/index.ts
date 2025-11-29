@@ -4,16 +4,37 @@ import { pathToFileURL } from "node:url";
 import express from "express";
 import vhost from "vhost";
 import { getApps } from "./utils";
-import config from "../config.json" assert { type: "json" };
 
-import "dotenv/config";
+const port = process.env.SERVER_PORT;
+const serverMode = process.env.SERVER_MODE;
+const appsDirPath = process.env.APPS_DIR;
+const appEntryFile = process.env.APP_ENTRY_FILE;
+const defaultApp = process.env.DEFAULT_APP;
 
-const port = process.env.PORT ?? 7300;
-const serverMode = process.env.SERVER_MODE ?? "localhost";
+if (!port) {
+	throw new Error("SERVER_PORT env is not set");
+}
+
+if (!serverMode) {
+	throw new Error("SERVER_MODE env is not set");
+}
+
+if (!appsDirPath) {
+	throw new Error("APPS_DIR env is not set");
+}
+
+if (!appEntryFile) {
+	throw new Error("APP_ENTRY_FILE env is not set");
+}
+
+if (!defaultApp) {
+	throw new Error("DEFAULT_APP env is not set");
+}
+
 const server = express();
 
 const loadApps = async () => {
-	const appsDir = resolve(config.appsDir);
+	const appsDir = resolve(appsDirPath);
 	const appFolders = await getApps(appsDir);
 
 	if (!appFolders.length) {
@@ -28,7 +49,7 @@ const loadApps = async () => {
 			const appPath = join(
 				appsDir,
 				`${appFolder}/${appFolder}-backend/dist`,
-				config.appEntryFile
+				appEntryFile
 			);
 
 			if (!existsSync(appPath)) {
@@ -48,7 +69,7 @@ const loadApps = async () => {
 			console.log(`Application ${appFolder} on subdomain ${subdomain}`);
 
 			// Default route
-			if (appFolder === config.defaultApp) {
+			if (appFolder === defaultApp) {
 				server.use(vhost(serverMode, app));
 				console.log(`Application ${appFolder} on default route`);
 			}
