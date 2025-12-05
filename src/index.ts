@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -5,11 +6,18 @@ import express from "express";
 import vhost from "vhost";
 import { getApps } from "./utils";
 
+type AppConfig = {
+	dbMode?: string;
+	postgresUrl?: string;
+	mongoUrl?: string;
+};
+
 const port = process.env.SERVER_PORT;
 const serverMode = process.env.SERVER_MODE;
 const appsDirPath = process.env.APPS_DIR;
 const appEntryFile = process.env.APP_ENTRY_FILE;
 const defaultApp = process.env.DEFAULT_APP;
+const configFilePath = process.env.APPS_CONFIG_FILE;
 
 if (!port) {
 	throw new Error("SERVER_PORT env is not set");
@@ -31,6 +39,10 @@ if (!defaultApp) {
 	throw new Error("DEFAULT_APP env is not set");
 }
 
+if (!configFilePath) {
+	throw new Error("APPS_CONFIG_FILE env is not set");
+}
+
 const server = express();
 
 const loadApps = async () => {
@@ -41,6 +53,17 @@ const loadApps = async () => {
 		console.warn(
 			`No applications found to load. Check the apps directory:\n${appsDir}`
 		);
+		process.exit(1);
+	}
+
+	// Load configs
+	const configPath = resolve(configFilePath);
+	let configs: { apps: { [appId: string]: AppConfig } } = { apps: {} };
+	try {
+		const raw = await readFile(configPath, "utf8");
+		configs = JSON.parse(raw);
+	} catch (e) {
+		console.error(`Failed to load config file at ${configPath}:`, e);
 		process.exit(1);
 	}
 
@@ -61,7 +84,8 @@ const loadApps = async () => {
 
 			const path = pathToFileURL(appPath).href;
 			const appModule = await import(path);
-			const app = await appModule.server();
+			const appConfig = configs.apps?.[appFolder] ?? {};
+			const app = await appModule.server(appConfig);
 			const subdomain = `${appFolder}.${serverMode}`;
 
 			// Subdomain routes

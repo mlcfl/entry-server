@@ -25,3 +25,6 @@ logs
 
 # Certificates and keys
 *.pem
+
+# Generated config files
+config.*.json

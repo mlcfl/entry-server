@@ -9,12 +9,15 @@
 	"scripts": {
 		"dev": "tsx watch --env-file=.env.development ./src/index.ts",
 		"build": "tsx --env-file=.env.production esbuild.config.ts",
-		"start": "node --env-file=.env.production dist/index.js"
+		"start": "node --env-file=.env.production dist/index.js",
+		"config:dev": "tsx --env-file=.env.development config.ts",
+		"config:prod": "tsx --env-file=.env.production config.ts"
 	},
 	"devDependencies": {
 		"@types/express": "^5.0.1",
 		"@types/node": "^22.14.0",
 		"@types/vhost": "^3.0.9",
+		"dotenv": "^17.2.3",
 		"esbuild": "^0.25.2",
 		"tsx": "^4.19.3",
 		"typescript": "^5.8.3"
